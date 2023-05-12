@@ -10,7 +10,6 @@ function mortgageCalculator(amount, rate, term) {
   } else {
     return (amount * (rate / (1 - Math.pow((1 + rate), (-term)))));
   }
-
 }
 
 function fix (number) {
