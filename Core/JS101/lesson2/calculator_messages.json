@@ -1,0 +1,21 @@
+{
+    "en" : {
+      "welcome" : "Welcome to the calculator program",
+      "question1" : "Please enter the first number",
+      "question2" : "Please enter the second number",
+      "invalidnumber" : "Does not look like a valid number. Please enter again:",
+      "operation" : "Please enter the operation:\n1) Add 2) Subtract 3) Multiply 4) Divide",
+      "invalidops" : "Please enter 1, 2, 3 or 4",
+      "repeatop" : "Do you want to do more operation?"
+
+    },
+    "es" : {
+      "welcome" : "Bienvenido a la calculadora! Entre su nombre:",
+      "invalidnumber" : "Asegúrese de entrar un nombre válido.",
+      "question1" : "Please enter the first number",
+      "question2" : "Please enter the second number",
+      "operation" : "Please enter the operation:\n1) Add 2) Subtract 3) Multiply 4) Divide",
+      "invalidops" : "Please enter 1, 2, 3 or 4",
+      "repeatop" : "Do you want to do more operation?"
+    }
+  }
