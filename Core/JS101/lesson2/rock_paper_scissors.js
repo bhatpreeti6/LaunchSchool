@@ -1,19 +1,31 @@
 const readline = require('readline-sync');
-const VALID_CHOICES = ['rock', 'paper' , 'scissors'];
+const VALID_CHOICES = [['rock', 'r'],
+  ['paper', 'p'],
+  ['scissors', 'sc'],
+  ['lizard', 'l'],
+  ['spock','sp']];
 
-function displayWinner(choice,compChoice) {
-  if ((choice === 'rock' && compChoice === 'scissors') ||
-     (choice === 'paper' && compChoice === 'rock') ||
-     (choice === 'scissors' && compChoice === 'paper')) {
-    prompt('You win!!!');
-  } else if ((choice === 'scissors' && compChoice === 'rock') ||
-                (choice === 'rock' && compChoice === 'paper') ||
-                (choice === 'paper' && compChoice === 'scissors')) {
-    prompt('Computer Wins');
-  } else {
-    prompt('Its a tie');
+let playAgain;
+
+function winner(choice,compChoice) {
+  if (choice === compChoice) return 'It\'s a tie';
+  switch (choice) {
+    case 'rock':
+      if (compChoice === 'lizard' || compChoice === 'scissors') return 'You win';
+      else return 'Computer Wins';
+    case 'scissors':
+      if (compChoice === 'paper' || compChoice === 'lizard') return 'You Win';
+      else return 'Computer Wins';
+    case 'paper':
+      if (compChoice === 'rock' || compChoice === 'spock') return 'You win';
+      else return 'Computer wins';
+    case 'lizard':
+      if (compChoice === 'paper' || compChoice === 'spock') return 'You Win';
+      else return 'Computer Wins';
+    case 'spock':
+      if (compChoice === 'rock' || compChoice === 'scissors') return 'You win';
+      else return 'Computer wins';
   }
-
 }
 
 function prompt(message) {
@@ -21,25 +33,32 @@ function prompt(message) {
 }
 
 function readChoice() {
-  prompt(`Choose one: ${VALID_CHOICES.join(', ')}`);
+  prompt('Choose one:');
+  VALID_CHOICES.forEach (arr => {
+    prompt(`${arr.join(' or ')}`);
+  });
   let choice = readline.question();
-  while (!VALID_CHOICES.includes(choice)) {
-    prompt('That is not a valid choice. Please enter again');
+  while (!VALID_CHOICES.flat().includes(choice)) {
+    prompt('That is not a valid choice. Please choose again');
     choice = readline.question();
   }
+  VALID_CHOICES.forEach(arr => {
+    if (choice === arr[1]) {
+      choice = arr[0];
+    }
+  });
   return choice;
 }
 
 
-let playAgain;
-
 do {
   console.clear();
+  prompt('WELCOME TO ROCK PAPER SCISSORS LIZARD SPOCK!!!');
   let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
-  let computerChoice = VALID_CHOICES[randomIndex];
+  let computerChoice = VALID_CHOICES[randomIndex][0];
   let userChoice = readChoice();
   prompt(`You chose ${userChoice}, computer chose ${computerChoice}`);
-  displayWinner(userChoice,computerChoice);
+  prompt(winner(userChoice,computerChoice));
   prompt('Do you want to play again? (y/n)');
   playAgain = readline.question();
   while (playAgain.toLowerCase() !== 'y' && playAgain.toLowerCase() !== 'n') {
