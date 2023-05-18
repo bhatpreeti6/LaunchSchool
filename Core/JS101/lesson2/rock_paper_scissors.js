@@ -5,9 +5,8 @@ const VALID_CHOICES = [['rock', 'r'],
   ['lizard', 'l'],
   ['spock','sp']];
 
-let playAgain;
 
-function winner(choice,compChoice) {
+function winner(choice, compChoice) {
   if (choice === compChoice) return 'It\'s a tie';
   switch (choice) {
     case 'rock':
@@ -32,15 +31,19 @@ function prompt(message) {
   console.log(`==> ${message}`);
 }
 
+function userPrompt(message) {
+  console.log(`   ${message}`);
+}
+
 function readChoice() {
-  prompt('Choose one:');
+  prompt('\nEnter your choice:');
   VALID_CHOICES.forEach (arr => {
-    prompt(`${arr.join(' or ')}`);
+    userPrompt(`${arr.join(' or ')}`);
   });
-  let choice = readline.question();
+  let choice = readline.question().toLowerCase();
   while (!VALID_CHOICES.flat().includes(choice)) {
     prompt('That is not a valid choice. Please choose again');
-    choice = readline.question();
+    choice = readline.question().toLowerCase();
   }
   VALID_CHOICES.forEach(arr => {
     if (choice === arr[1]) {
@@ -50,19 +53,34 @@ function readChoice() {
   return choice;
 }
 
+function displayBestOfFive() {
+  let computerWins = 0;
+  let userWins = 0;
+  for (let count = 1; count < 6; count += 1) {
+    let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
+    let computerChoice = VALID_CHOICES[randomIndex][0];
+    let userChoice = readChoice();
+    let gameWinner = winner(userChoice, computerChoice);
+    prompt(`You chose ${userChoice}, computer chose ${computerChoice}. ${gameWinner}`);
+    if (gameWinner.split(' ')[0] === 'You') userWins += 1;
+    else if (gameWinner.split(' ')[0] === 'Computer') computerWins += 1;
+    if ([userWins,computerWins].includes(3)) break;
+  }
+  prompt(`Score is User: ${userWins}  Computer: ${computerWins}`);
+  if (userWins > computerWins) prompt ('\nYou are the grand Winner!!!');
+  else if (userWins < computerWins) prompt('\nComputer is the grand Winner!!!');
+  else prompt ('\nIts a tie! No one is the grand winner');
+}
 
-do {
+while (true) {
   console.clear();
   prompt('WELCOME TO ROCK PAPER SCISSORS LIZARD SPOCK!!!');
-  let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
-  let computerChoice = VALID_CHOICES[randomIndex][0];
-  let userChoice = readChoice();
-  prompt(`You chose ${userChoice}, computer chose ${computerChoice}`);
-  prompt(winner(userChoice,computerChoice));
+  displayBestOfFive();
   prompt('Do you want to play again? (y/n)');
-  playAgain = readline.question();
+  let playAgain = readline.question();
   while (playAgain.toLowerCase() !== 'y' && playAgain.toLowerCase() !== 'n') {
     prompt('Please select "y" or "n"');
     playAgain = readline.question();
   }
-} while (playAgain.toLowerCase() === 'y');
+  if (playAgain.toLowerCase() === 'n') break;
+}
