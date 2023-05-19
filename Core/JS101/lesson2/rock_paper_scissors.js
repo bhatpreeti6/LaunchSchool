@@ -36,7 +36,7 @@ function userPrompt(message) {
 }
 
 function readChoice() {
-  prompt('\nEnter your choice:');
+  prompt('Enter your choice:');
   VALID_CHOICES.forEach (arr => {
     userPrompt(`${arr.join(' or ')}`);
   });
@@ -53,7 +53,17 @@ function readChoice() {
   return choice;
 }
 
-function displayBestOfFive() {
+function displayBestOfFive(userWins, computerWins) {
+  prompt(`Score is User: ${userWins}  Computer: ${computerWins}`);
+  if (userWins > computerWins) prompt('\nYou are the grand Winner!!!');
+  else if (userWins < computerWins) prompt('\nComputer is the grand Winner!!!');
+  else prompt ('\nIts a tie! No one is the grand winner');
+}
+
+while (true) {
+  console.clear();
+  prompt('WELCOME TO ROCK PAPER SCISSORS LIZARD SPOCK!!!');
+  prompt('Lets play best of five');
   let computerWins = 0;
   let userWins = 0;
   for (let count = 1; count < 6; count += 1) {
@@ -66,16 +76,7 @@ function displayBestOfFive() {
     else if (gameWinner.split(' ')[0] === 'Computer') computerWins += 1;
     if ([userWins,computerWins].includes(3)) break;
   }
-  prompt(`Score is User: ${userWins}  Computer: ${computerWins}`);
-  if (userWins > computerWins) prompt ('\nYou are the grand Winner!!!');
-  else if (userWins < computerWins) prompt('\nComputer is the grand Winner!!!');
-  else prompt ('\nIts a tie! No one is the grand winner');
-}
-
-while (true) {
-  console.clear();
-  prompt('WELCOME TO ROCK PAPER SCISSORS LIZARD SPOCK!!!');
-  displayBestOfFive();
+  displayBestOfFive(userWins,computerWins);
   prompt('Do you want to play again? (y/n)');
   let playAgain = readline.question();
   while (playAgain.toLowerCase() !== 'y' && playAgain.toLowerCase() !== 'n') {
