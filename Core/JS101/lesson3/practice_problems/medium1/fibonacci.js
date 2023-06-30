@@ -7,6 +7,8 @@ function fibonacci(n) {
 }
 
 function findFibonacciIndexByLength(length) {
+  let index = 1;
+  
 
 }
 console.log(fibonacci(10));
