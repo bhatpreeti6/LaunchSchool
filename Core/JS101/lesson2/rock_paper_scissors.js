@@ -67,15 +67,21 @@ while (true) {
   let computerWins = 0;
   let userWins = 0;
   for (let count = 1; count < 6; count += 1) {
+<<<<<<< HEAD
     console.clear();
     prompt(`Score is User: ${userWins}  Computer: ${computerWins}`);
+=======
+>>>>>>> bonus
     let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
     let computerChoice = VALID_CHOICES[randomIndex][0];
     let userChoice = readChoice();
     let gameWinner = winner(userChoice, computerChoice);
     prompt(`You chose ${userChoice}, computer chose ${computerChoice}. ${gameWinner}`);
+<<<<<<< HEAD
     prompt('Press any key to continue');
     let cont = readline.question();
+=======
+>>>>>>> bonus
     if (gameWinner.split(' ')[0] === 'You') userWins += 1;
     else if (gameWinner.split(' ')[0] === 'Computer') computerWins += 1;
     if ([userWins,computerWins].includes(3)) break;
