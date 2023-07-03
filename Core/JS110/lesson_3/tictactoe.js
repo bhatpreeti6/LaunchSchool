@@ -10,21 +10,32 @@ const WINNING_COMBOS = [['1', '2', '3'],
   ['1', '5', '9'],
   ['3', '5', '7']
 ];
+const WINNING_COUNT = 3;
+const FIRST_MOVER = 'choose';
 
 function prompt(string) {
   console.log('==>' + string);
 }
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
+function chooseFirstMover() {
+  let currentPlayer = FIRST_MOVER;
+  if (FIRST_MOVER === 'choose') {
+    prompt('Please choose who makes first move:');
+    prompt('1. You    2. Computer');
+    let choice = readline.question();
+    while (!['1', '2'].includes(choice)) {
+      prompt('Invalid choice. Please choose again:');
+      choice = readline.question();
+    }
+    currentPlayer = choice === '1' ? 'Player' : 'Computer';
+  }
+
+  return currentPlayer;
 }
 
 function displayBoard(board) {
   console.clear();
+  console.log(`Your sign is ${HUMAN_MARKER}. Computer's sign is ${COMPUTER_MARKER}`);
   console.log('');
   console.log('     |     |');
   console.log(`  ${board['1']}  |  ${board['2']}  |  ${board['3']}  `);
@@ -56,12 +67,22 @@ function joinOr(array, delim = ', ', endSep = 'or') {
   if (array.length <= 2) {
     newStr = array.join(' ' + endSep + ' ');
   } else {
-    newStr = array.slice(0,-1).join(delim) + delim  + ' ' + endSep + ' ' + array.slice(-1);
+    newStr = array.slice(0,-1).join(delim) + delim  + endSep + ' ' + array.slice(-1);
   }
   return newStr;
 }
+
+function chooseSquare(board, currentPlayer) {
+  if (currentPlayer === 'Computer') computerChoosesSquare(board);
+  else playerChoosesSquare(board);
+}
+
+function alternatePlayer(currentPlayer) {
+  return currentPlayer === 'Computer' ? 'Player' : 'Computer';
+}
+
 function playerChoosesSquare(board) {
-  prompt(`Please choose square between ${emptySquares(board).join()}`);
+  prompt(`Please choose square between ${joinOr(emptySquares(board))}`);
   let square = readline.question();
   while (!emptySquares(board).includes(square)) {
     prompt("Sorry this is not valid. Please choose again:");
@@ -70,59 +91,134 @@ function playerChoosesSquare(board) {
   board[square] = HUMAN_MARKER;
 }
 
-function computerChoosesBoard(board) {
-
-  let square = Math.ceil(Math.random() * 9);
-  while (true) {
-    if (emptySquares(board).includes(String(square))) break;
-    square = Math.ceil(Math.random() * 9);
+function computerChoosesSquare(board) {
+  let square = findAtRiskSquare(board, COMPUTER_MARKER);
+  if (!square) {
+    square = findAtRiskSquare(board, HUMAN_MARKER);
   }
-
+  if (!square) {
+    square = board['5'] === ' ' ? 5 : '';
+  }
+  if (!square) {
+    square = Math.ceil(Math.random() * 9);
+    while (true) {
+      if (emptySquares(board).includes(String(square))) break;
+      square = Math.ceil(Math.random() * 9);
+    }
+  }
   board[square] = COMPUTER_MARKER;
 }
 
-function someoneWon(board) {
-  let winner = '';
-  WINNING_COMBOS.forEach(array => {
-    let valAtPosition = [];
-    array.forEach(key => {
-      valAtPosition.push(board[key]);
-    });
-    if (valAtPosition.every(value => value === '0')) winner = '0';
-    else if (valAtPosition.every(value => value === 'X')) winner = 'X';
-  });
-  return winner ? winner : false;
+function findAtRiskSquare(board, playersign) {
+  for (let index = 0; index < WINNING_COMBOS.length; index++) {
+    let array = WINNING_COMBOS[index];
+    let values = [];
+    for (let count = 0; count < array.length; count++) {
+      let key = array[count];
+      values.push([key, board[key]]);
+    }
+    let playerMarkCount = values.filter(val => val[1] === playersign).length;
+    let emptyMarkCount = values.filter(val => val[1] === ' ').length;
+    if (playerMarkCount === 2 && emptyMarkCount === 1) {
+      return values.filter(val => val[1] === ' ').flat()[0];
+    }
+  }
 }
+
+function someoneWon(board) {
+  let winner;
+  WINNING_COMBOS.forEach(combo => {
+    let valuesAtSquare = [];
+    combo.forEach(key => {
+      valuesAtSquare.push(board[key]);
+    });
+    if (valuesAtSquare.every(value => value === COMPUTER_MARKER)) {
+      winner = COMPUTER_MARKER;
+    } else if (valuesAtSquare.every(value => value === HUMAN_MARKER)) {
+      winner = HUMAN_MARKER;
+    }
+  });
+  return winner;
+}
+
 function boardFull(board) {
   return !Object.values(board).some(value => value === ' ');
 }
 
 function displayResult(winMark) {
-  if (winMark === COMPUTER_MARKER) prompt('Computer Wins');
-  else if (winMark === HUMAN_MARKER) prompt('You win');
-  else prompt("It's a tie!");
+  if (winMark === COMPUTER_MARKER) prompt('Computer Wins\n\n');
+  else if (winMark === HUMAN_MARKER) prompt('You win\n\n');
+  else prompt("It's a tie!\n\n");
 }
 
-while (true) {
+function getWins(winMark, userWins, computerWins) {
+  if (winMark === HUMAN_MARKER) userWins += 1;
+  else if (winMark === COMPUTER_MARKER) computerWins += 1;
+  return [userWins, computerWins];
+}
 
-  let board = initializeBoard();
-  while (true) {
+function displayBestOfFive(humanWins,computerWins) {
+  if (humanWins > computerWins) prompt('You won best of five!!!\n\n');
+  else if (computerWins > humanWins) prompt('Computer won best of five!!!\n\n');
+  else prompt('Its a tie! No one won best of five.\n\n');
+}
 
-    playerChoosesSquare(board);
-    displayBoard(board);
-    if (someoneWon(board) || boardFull(board)) break;
-    prompt('Computer is choosing now');
-    sleep(1000);
-    computerChoosesBoard(board);
-    displayBoard(board);
-    if (someoneWon(board) || boardFull(board)) break;
-  }
+function displayScore(computerWins, userWins) {
+  prompt('SCOREBOARD');
+  prompt(`YOUR WINS : ${userWins}  COMPUTER WINS : ${computerWins}\n\n`);
 
-  let winMark = someoneWon(board);
-  displayResult(winMark);
+}
 
+function isValidChoice(choice) {
+  const validChoices = ['y', 'yes', 'n', 'no'];
+  return validChoices.includes(choice);
+}
+
+function playAgain() {
   prompt('Do you like to play again?(y/n)');
-  let choice = readline.question().toLowerCase()[0];
-  if (choice !== 'y') break;
+  let choice = readline.question().toLowerCase();
+  while (!isValidChoice(choice)) {
+    prompt ('Enter a valid choice (y/n)');
+    choice = readline.question().toLowerCase();
+  }
+  return choice[0];
+}
+
+prompt('LETS PLAY TICTACTOE!!!');
+while (true) {
+  let computerWins = 0;
+  let userWins = 0;
+  let numOfGames = 1;
+
+  while (numOfGames <= 5) {
+    let board = initializeBoard();
+    let currentPlayer = chooseFirstMover();
+    displayScore(computerWins,userWins);
+
+    while (true) {
+      prompt(`\nGame number ${numOfGames}`);
+      chooseSquare(board, currentPlayer);
+      displayBoard(board);
+      currentPlayer = alternatePlayer(currentPlayer);
+      if (someoneWon(board) || boardFull(board)) break;
+    }
+
+    let winMark = someoneWon(board);
+    [userWins, computerWins] = getWins(winMark, userWins, computerWins);
+
+    displayResult(winMark);
+    displayScore(computerWins,userWins);
+
+    prompt('Please enter to continue');
+    readline.question();
+    console.clear();
+
+    if (userWins === WINNING_COUNT || computerWins === WINNING_COUNT) break;
+    numOfGames += 1;
+  }
+  displayScore(computerWins,userWins);
+  displayBestOfFive(userWins,computerWins);
+
+  if (playAgain() !== 'y') break;
 }
 prompt('Thanks for playing TicTacToe!');
